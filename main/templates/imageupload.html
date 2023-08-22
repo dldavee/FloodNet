@@ -1,0 +1,102 @@
+{% extends "dbase.html" %} {% load static %} {% block content %}
+<style>
+    .image-container {
+        display: inline-block;
+        width: 100px;
+        height: 75px;
+        margin: 10px;
+        border: 1px solid #ccc;
+        padding: 5px;
+    }
+
+    .image-container img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+</style>
+<div
+id="toast-container"
+class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3"
+>
+{% for message in messages %}
+<div
+  class="toast align-items-center text-white bg-success border-0"
+  role="alert"
+  aria-live="assertive"
+  aria-atomic="true"
+>
+  <div class="d-flex">
+    <div class="toast-body">{{ message }}</div>
+    <button
+      type="button"
+      class="btn-close btn-close-white me-2 m-auto"
+      data-bs-dismiss="toast"
+      aria-label="Close"
+    ></button>
+  </div>
+</div>
+{% endfor %}
+</div>
+        <div class="d-flex align-items-center justify-content-center w-100 pt-5">
+          <div class="row justify-content-center w-100">
+            <div class="col-md-8 col-lg-6 col-xxl-3">
+              <div class="card mb-0">
+                <div class="card-body">
+                  <h5 class="text-center">Upload Image</h5>
+                  <form enctype="multipart/form-data" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <input required class="form-control" name='image' type="file" id="imageInput" multiple>
+                    </div>
+                    <button
+                      type="submit"
+                      class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2"
+                    >
+                      upload
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <div id="imagePreview"></div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Display selected images
+        function previewImages() {
+            var previewContainer = document.getElementById('imagePreview');
+            previewContainer.innerHTML = '';
+
+            var files = document.getElementById('imageInput').files;
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var imgElement = document.createElement('img');
+                    imgElement.src = e.target.result;
+                    imgElement.className = 'preview-image';
+
+                    var imageContainer = document.createElement('div');
+                    imageContainer.className = 'image-container';
+                    imageContainer.appendChild(imgElement);
+
+                    previewContainer.appendChild(imageContainer);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Attach event listener to the file input
+        $('#imageInput').on('change', previewImages);
+    </script>
+    <script>
+        $(document).ready(function () {
+          $(".toast").toast("show");
+        });
+      </script>
+{% endblock %}

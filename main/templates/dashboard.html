@@ -1,0 +1,20 @@
+{% extends "dbase.html" %} {% load static %} {% block content %}
+
+<div class="container-fluid">
+  <!--  Row 1 -->
+  <div class="row">
+    <div class="col-sm-6 col-lg-4 col-xl-2">
+      <div class="p-4 text-center bg-light-info card shadow-none rounded-2">
+        <p class="fw-semibold text-info mb-1">Total Images</p>
+        <h4 class="fw-semibold text-info mb-0">{{ imagecount }}</h4>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-4 col-xl-2">
+      <div class="p-4 text-center bg-light-info card shadow-none rounded-2">
+        <p class="fw-semibold text-info mb-1">Total Users</p>
+        <h4 class="fw-semibold text-info mb-0">{{ users }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

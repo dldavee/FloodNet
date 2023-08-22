@@ -1,0 +1,306 @@
+{% extends "dbase.html" %} {% load static %} {% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card mt-5">
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="row">
+              <div class="col-lg-6">
+                <h5 class="mb-0">Categories</h5>
+              </div>
+              <div class="col-lg-6 d-flex flex-row-reverse">
+                <button class="btn btn-light-primary text-primary btn-lg px-4 fs-4 font-medium" data-bs-toggle="modal"
+                  data-bs-target="#bs-example-modal-md-add">
+                  <i class="ti ti-plus me-2 fs-4"></i> Add Category
+                </button>
+              </div>
+            </div>
+          </div>
+          <ul class="list-group" id="category-list">
+            {% for category in categories %}
+            <li class="list-group-item d-flex align-items-center" id="category-{{ category.id }}">
+              <i class="ti ti-square-dot fs-4 me-2 text-primary"></i>
+              <span class="category-name">{{ category.name }}</span>
+              <i class="delete-btn ti ti-circle-minus fs-4 me-2 text-primary" data-bs-toggle="modal"
+                data-bs-target="#deleteConfirmationModal" style="position: absolute; right: 0"
+                data-category-id="{{ category.id }}"></i>
+              <i class="edit-btn ti ti-edit-circle fs-4 me-4 text-primary" data-bs-toggle="modal"
+                data-bs-target="#editCategoryModal" style="position: absolute; right: 0"
+                data-category-id="{{ category.id }}"></i>
+
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal fade" id="bs-example-modal-md-add" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="mb-3">Add Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <form method="POST" id="add-category-form">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="form-floating mb-3">
+                <input type="text" name="name" class="form-control" id="tb-fname" placeholder="Enter Name here" />
+                <label for="tb-fname">Name</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <div class="col-12">
+                <div class="d-md-flex align-items-center mt-3">
+                  <div class="ms-auto mt-3 mt-md-0">
+                    <button type="submit" class="btn btn-info font-medium rounded-pill px-4">
+                      <div class="d-flex align-items-center">
+                        <i class="ti ti-plus me-2 fs-4"></i>
+                        Add
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<div class="modal fade" id="editCategoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">Edit Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <form method="POST" id="edit-category-form">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="form-floating mb-3">
+                <input type="text" name="name" class="form-control" id="tb-fname-edit" placeholder="Enter Name here" />
+                <label for="edit-fname">Name</label>
+              </div>
+            </div>
+
+
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="category_id" id="edit-category-id" value="">
+            <div class="col-12">
+              <div class="d-md-flex align-items-center mt-3">
+                <div class="ms-auto mt-3 mt-md-0">
+                  <button type="submit" class="btn btn-info font-medium rounded-pill px-4">
+                    <div class="d-flex align-items-center">
+                      <i class="ti ti-pencil me-2 fs-4"></i>
+                      Update
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Confirmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <p>Are you sure you want to delete this product?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-info font-medium rounded-pill px-4"
+          id="deleteConfirmationBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $("#add-category-form").submit(function (event) {
+      event.preventDefault();
+
+      $.ajax({
+        type: "POST",
+        url: "/dashboard/add-category",
+        data: $(this).serialize(),
+        success: function (response) {
+          document.getElementById("tb-fname").value = "";
+          if (response.status === "success") {
+            var categoryList = $("#category-list");
+            categoryList.empty();
+
+            for (var i = 0; i < response.data.length; i++) {
+              var category = response.data[i];
+              var listItem = $(
+                '<li class="list-group-item d-flex align-items-center">'
+              )
+                .attr("id", "category-" + category.id)
+                .html(
+                  '<i class="ti ti-square-dot fs-4 me-2 text-primary"></i>' +
+                  '<span class="category-name">' +
+                  category.name +
+                  "</span>"
+                );
+              listItem.append(
+                '<i class="edit-btn ti ti-edit-circle fs-4 me-4 text-primary" style=" position: absolute;right: 0" data-category-id="' +
+                category.id +
+                '"></i>'
+              );
+              listItem.append(
+                '<i class="delete-btn ti ti-circle-minus fs-4 me-2 text-primary" style=" position: absolute;right: 0" data-category-id="' +
+                category.id +
+                '"></i>'
+              );
+              categoryList.append(listItem);
+            }
+
+            // Close the modal
+            $("#bs-example-modal-md-add").modal("hide");
+          } else {
+            alert("Error: " + response.message);
+          }
+        },
+      });
+    });
+  });
+
+  // delete
+  $(document).on("click", ".delete-btn", function () {
+    var categoryId = $(this).data("category-id");
+    var categoryElement = $("#category-" + categoryId);
+
+    // Show the delete confirmation modal
+    $("#deleteConfirmationModal").modal("show");
+
+    // Handle delete confirmation
+    $("#deleteConfirmationBtn").click(function () {
+      // Close the delete confirmation modal
+      $("#deleteConfirmationModal").modal("hide");
+
+      $.ajax({
+        type: "POST",
+        url: "/dashboard/delete_category/" + categoryId + "/",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (response) {
+          if (response.status === "success") {
+            categoryElement.remove();
+            console.log("Category deleted successfully");
+          } else {
+            console.error("Error: " + response.message);
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error("An error occurred:", error);
+        },
+      });
+    });
+
+    // Handle cancel button
+    $("#deleteConfirmationModal").on("hidden.bs.modal", function () {
+      $("#deleteConfirmationBtn").off("click"); // Remove the click event handler
+    });
+  });
+
+
+
+
+
+
+  // edit 
+  $(document).on("click", ".edit-btn", function () {
+    var categoryElement = $(this).closest("li");
+    var categoryNameElement = categoryElement.find(".category-name");
+    var categoryId = categoryElement.attr("id").split("-")[1];
+    var categoryName = categoryNameElement.text();
+
+    // Populate the modal inputs with the category details
+    $("#tb-fname-edit").val(categoryName);
+    $("#edit-category-form").attr("data-category-id", categoryId);
+  });
+
+  $(document).on("submit", "#edit-category-form", function (event) {
+    event.preventDefault();
+
+    // Get the category ID from the form's data-category-id attribute
+    var categoryId = $(this).attr("data-category-id");
+
+    // Get the updated category name from the modal input
+    var newName = $("#tb-fname-edit").val().trim();
+
+    if (newName) {
+      $.ajax({
+        type: "POST",
+        url: "/dashboard/edit_category/" + categoryId + "/",
+        data: {
+          name: newName,
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (response) {
+          if (response.status === "success") {
+            // Update the category name in the table
+            var categoryElement = $("#category-" + categoryId);
+            var categoryNameElement = categoryElement.find(".category-name");
+            categoryNameElement.text(newName);
+
+            // Close the modal
+            $("#editCategoryModal").modal("hide");
+          } else {
+            alert("Error: " + response.message);
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error("An error occurred:", error);
+        },
+      });
+    }
+  });
+
+
+
+</script>
+
+{% endblock %}
